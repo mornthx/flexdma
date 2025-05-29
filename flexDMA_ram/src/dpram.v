@@ -6,7 +6,7 @@
 module dpram # (
   parameter DATA_WIDTH = 32,
   parameter RAM_DEPTH = 256,                  // Specify RAM depth (number of entries)
-  parameter RAM_PERFORMANCE = "HIGH_PERFORMANCE", // Select "HIGH_PERFORMANCE" or "LOW_LATENCY" 
+  parameter RAM_PERFORMANCE = "LOW_LATENCY", // Select "HIGH_PERFORMANCE" or "LOW_LATENCY" 
   parameter INIT_FILE = ""                       // Specify name/location of RAM initialization file if using one (leave blank if not)
 ) (
     input wire [$clog2(RAM_DEPTH-1)-1:0] addra,       // Port A address bus, width determined from RAM_DEPTH
