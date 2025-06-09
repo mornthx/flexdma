@@ -739,7 +739,15 @@ proc update_MODELPARAM_VALUE.TYPE15_REG_OFFSET { MODELPARAM_VALUE.TYPE15_REG_OFF
 }
 
 
+proc update_MODELPARAM_VALUE.MAX_REG_OFFSET { MODELPARAM_VALUE.MAX_REG_OFFSET PARAM_VALUE.NUM_TMAX_REG_OFFSETYPE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.MAX_REG_OFFSET}] ${MODELPARAM_VALUE.MAX_REG_OFFSET}
+}
 
+proc update_MODELPARAM_VALUE.NUM_TYPE { MODELPARAM_VALUE.NUM_TYPE PARAM_VALUE.NUM_TYPE } {
+	# Procedure called to set VHDL generic/Verilog parameter value(s) based on TCL parameter value
+	set_property value [get_property value ${PARAM_VALUE.NUM_TYPE}] ${MODELPARAM_VALUE.NUM_TYPE}
+}
 
 
 proc update_MODELPARAM_VALUE.C_S_AXI_DATA_WIDTH { MODELPARAM_VALUE.C_S_AXI_DATA_WIDTH PARAM_VALUE.C_S_AXI_DATA_WIDTH } {

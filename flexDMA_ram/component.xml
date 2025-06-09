@@ -49554,12 +49554,12 @@
     <spirit:modelParameters>
       <spirit:modelParameter xsi:type="spirit:nameValueTypeType" spirit:dataType="integer">
         <spirit:name>MAX_TYPE</spirit:name>
-        <spirit:displayName>Max Type</spirit:displayName>
+        <spirit:displayName>MAX_TYPE</spirit:displayName>
         <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.MAX_TYPE">16</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="integer">
         <spirit:name>NUM_TYPE</spirit:name>
-        <spirit:displayName>Num Type</spirit:displayName>
+        <spirit:displayName>NUM_TYPE</spirit:displayName>
         <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.NUM_TYPE">3</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="integer">
@@ -49569,7 +49569,7 @@
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="integer">
         <spirit:name>MAX_REG_OFFSET</spirit:name>
-        <spirit:displayName>Max Reg Offset</spirit:displayName>
+        <spirit:displayName>MAX_REG_OFFSET</spirit:displayName>
         <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.MAX_REG_OFFSET">65536</spirit:value>
       </spirit:modelParameter>
       <spirit:modelParameter spirit:dataType="integer">
@@ -49924,7 +49924,7 @@
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>NUM_TYPE</spirit:name>
-      <spirit:displayName>Num Type</spirit:displayName>
+      <spirit:displayName>NUM_TYPE</spirit:displayName>
       <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.NUM_TYPE">3</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
@@ -49934,7 +49934,7 @@
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>MAX_REG_OFFSET</spirit:name>
-      <spirit:displayName>Max Reg Offset</spirit:displayName>
+      <spirit:displayName>MAX_REG_OFFSET</spirit:displayName>
       <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.MAX_REG_OFFSET">65536</spirit:value>
     </spirit:parameter>
     <spirit:parameter>
