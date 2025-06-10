@@ -6472,7 +6472,7 @@ end
 // start of DPRAM logic       
 
     wire [$clog2(MAX_INST_PERTYPE * MAX_REG_OFFSET) -1: 0] TYPE_OFFSET [0 : MAX_TYPE -1];
-    wire [$clog2(MAX_INST_PERTYPE) -1: 0] TYPE_SEQ [0 : MAX_TYPE -1] [0 : MAX_INST_PERTYPE -1];
+    wire [$clog2(MAX_INST_PERTYPE) : 0] TYPE_SEQ [0 : MAX_TYPE -1] [0 : MAX_INST_PERTYPE -1];
     wire [$clog2(MAX_TYPE * MAX_INST_PERTYPE * MAX_REG_OFFSET) -1: 0] BASE_ADDR [0 : MAX_TYPE -1] [0 : MAX_INST_PERTYPE -1];
     wire [$clog2(MAX_TYPE * MAX_INST_PERTYPE * MAX_REG_OFFSET) -1: 0] HIGH_ADDR [0 : MAX_TYPE -1] [0 : MAX_INST_PERTYPE -1];
 		
@@ -6541,8 +6541,8 @@ end
         		assign HIGH_ADDR[typ][inst] = typ > 0 ?  TYPE_SEQ[typ][inst] 		 * TYPE_REG_OFFSET[typ] + TYPE_OFFSET[typ -1]
 																					 :  TYPE_SEQ[typ][inst] 		 * TYPE_REG_OFFSET[typ];
 
-						assign axi_ram_en[typ][inst] = (mem_rden && (mem_address_read >= BASE_ADDR[typ][inst]) && (mem_address_read < HIGH_ADDR[typ][inst])) 
-												||(mem_wren && (mem_address_write >= BASE_ADDR[typ][inst]) && (mem_address_write < HIGH_ADDR[typ][inst]));
+						assign axi_ram_en[typ][inst] = inst == 0 ? TYPE_SEQ[typ][inst] != 0 & (mem_rden && (mem_address_read >= BASE_ADDR[typ][inst]) && (mem_address_read < HIGH_ADDR[typ][inst]))||(mem_wren && (mem_address_write >= BASE_ADDR[typ][inst]) && (mem_address_write < HIGH_ADDR[typ][inst])):
+                                           TYPE_SEQ[typ][inst] != TYPE_SEQ[typ][inst-1] ? (mem_rden && (mem_address_read >= BASE_ADDR[typ][inst]) && (mem_address_read < HIGH_ADDR[typ][inst]))||(mem_wren && (mem_address_write >= BASE_ADDR[typ][inst]) && (mem_address_write < HIGH_ADDR[typ][inst])) : 0;
 
 						assign axi_ram_we[typ][inst] = mem_wren && (mem_address_write >= BASE_ADDR[typ][inst]) && (mem_address_write < HIGH_ADDR[typ][inst]);
 						

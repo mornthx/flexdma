@@ -2,22 +2,22 @@ module bit_sum16 # (
     parameter DATA_WIDTH = 16
 )(
     input [DATA_WIDTH -1: 0] din,
-    output [3 : 0] bit_sum0,
-    output [3 : 0] bit_sum1,
-    output [3 : 0] bit_sum2,
-    output [3 : 0] bit_sum3,
-    output [3 : 0] bit_sum4,
-    output [3 : 0] bit_sum5,
-    output [3 : 0] bit_sum6,
-    output [3 : 0] bit_sum7,
-    output [3 : 0] bit_sum8,
-    output [3 : 0] bit_sum9,
-    output [3 : 0] bit_sum10,
-    output [3 : 0] bit_sum11,
-    output [3 : 0] bit_sum12,
-    output [3 : 0] bit_sum13,
-    output [3 : 0] bit_sum14,
-    output [3 : 0] bit_sum15
+    output [$clog2(DATA_WIDTH) : 0] bit_sum0,
+    output [$clog2(DATA_WIDTH) : 0] bit_sum1,
+    output [$clog2(DATA_WIDTH) : 0] bit_sum2,
+    output [$clog2(DATA_WIDTH) : 0] bit_sum3,
+    output [$clog2(DATA_WIDTH) : 0] bit_sum4,
+    output [$clog2(DATA_WIDTH) : 0] bit_sum5,
+    output [$clog2(DATA_WIDTH) : 0] bit_sum6,
+    output [$clog2(DATA_WIDTH) : 0] bit_sum7,
+    output [$clog2(DATA_WIDTH) : 0] bit_sum8,
+    output [$clog2(DATA_WIDTH) : 0] bit_sum9,
+    output [$clog2(DATA_WIDTH) : 0] bit_sum10,
+    output [$clog2(DATA_WIDTH) : 0] bit_sum11,
+    output [$clog2(DATA_WIDTH) : 0] bit_sum12,
+    output [$clog2(DATA_WIDTH) : 0] bit_sum13,
+    output [$clog2(DATA_WIDTH) : 0] bit_sum14,
+    output [$clog2(DATA_WIDTH) : 0] bit_sum15
 );
 
 

@@ -20159,7 +20159,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>3f9630d6</spirit:value>
+            <spirit:value>025a1736</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -20178,7 +20178,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>3f9630d6</spirit:value>
+            <spirit:value>025a1736</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -20192,7 +20192,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>7f064818</spirit:value>
+            <spirit:value>716a48be</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -50181,17 +50181,17 @@
       </xilinx:taxonomies>
       <xilinx:displayName>flexDMA_ram_v1_0</xilinx:displayName>
       <xilinx:definitionSource>package_project</xilinx:definitionSource>
-      <xilinx:coreRevision>40</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2025-05-28T03:21:06Z</xilinx:coreCreationDateTime>
+      <xilinx:coreRevision>42</xilinx:coreRevision>
+      <xilinx:coreCreationDateTime>2025-06-10T05:24:11Z</xilinx:coreCreationDateTime>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2024.2</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="b1e0bd86"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="a0f80a08"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="3bb43819"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="5f150cdf"/>
       <xilinx:checksum xilinx:scope="ports" xilinx:value="a0f11bcf"/>
-      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="44b03532"/>
-      <xilinx:checksum xilinx:scope="parameters" xilinx:value="ee60949d"/>
+      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="b6972524"/>
+      <xilinx:checksum xilinx:scope="parameters" xilinx:value="e822f6af"/>
     </xilinx:packagingInfo>
   </spirit:vendorExtensions>
 </spirit:component>
