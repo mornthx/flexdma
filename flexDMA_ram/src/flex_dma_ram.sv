@@ -6473,18 +6473,18 @@ end
 
     wire [$clog2(MAX_INST_PERTYPE * MAX_REG_OFFSET) -1: 0] TYPE_OFFSET [0 : MAX_TYPE -1];
     wire [$clog2(MAX_INST_PERTYPE) : 0] TYPE_SEQ [0 : MAX_TYPE -1] [0 : MAX_INST_PERTYPE -1];
-    wire [$clog2(MAX_TYPE * MAX_INST_PERTYPE * MAX_REG_OFFSET) -1: 0] BASE_ADDR [0 : MAX_TYPE -1] [0 : MAX_INST_PERTYPE -1];
-    wire [$clog2(MAX_TYPE * MAX_INST_PERTYPE * MAX_REG_OFFSET) -1: 0] HIGH_ADDR [0 : MAX_TYPE -1] [0 : MAX_INST_PERTYPE -1];
+    reg [$clog2(MAX_TYPE * MAX_INST_PERTYPE * MAX_REG_OFFSET) -1: 0] BASE_ADDR [0 : MAX_TYPE -1] [0 : MAX_INST_PERTYPE -1];
+    reg [$clog2(MAX_TYPE * MAX_INST_PERTYPE * MAX_REG_OFFSET) -1: 0] HIGH_ADDR [0 : MAX_TYPE -1] [0 : MAX_INST_PERTYPE -1];
 		
 		wire [MAX_INST_PERTYPE -1: 0] ram_addr_valid [0 : MAX_TYPE -1] [0 : MAX_INST_PERTYPE -1];
-		wire [MAX_INST_PERTYPE -1: 0] axi_ram_en [0 : MAX_TYPE -1];
+		reg [MAX_INST_PERTYPE -1: 0] axi_ram_en [0 : MAX_TYPE -1];
 		reg [MAX_INST_PERTYPE -1: 0] axi_ram_en_d1 [0 : MAX_TYPE -1];
 		reg [MAX_INST_PERTYPE -1: 0] axi_ram_en_d2 [0 : MAX_TYPE -1];
-		wire [MAX_INST_PERTYPE -1: 0] axi_ram_we [0 : MAX_TYPE -1];
-    wire [$clog2(MAX_REG_OFFSET) -1: 0] axi_ram_addr [0 : MAX_TYPE -1] [0 : MAX_INST_PERTYPE -1];
+		reg [MAX_INST_PERTYPE -1: 0] axi_ram_we [0 : MAX_TYPE -1];
+    reg [$clog2(MAX_REG_OFFSET) -1: 0] axi_ram_addr [0 : MAX_TYPE -1] [0 : MAX_INST_PERTYPE -1];
     wire [C_S_AXI_DATA_WIDTH -1: 0] dout2axi [0 : MAX_TYPE -1] [0 : MAX_INST_PERTYPE -1];
 		
-    localparam [$clog2(MAX_INST_PERTYPE) -1: 0] TYPE_NUM [0 : MAX_TYPE -1] 
+    localparam [$clog2(MAX_INST_PERTYPE): 0] TYPE_NUM [0 : MAX_TYPE -1] 
                 = {
                     TYPE0_NUM,
                     TYPE1_NUM,
@@ -6535,20 +6535,20 @@ end
 																			: (TYPE_NUM[typ] > 0 ? TYPE_SEQ[typ][TYPE_NUM[typ] -1] : 0) * TYPE_REG_OFFSET[typ];
         for (inst = 0; inst < TYPE_NUM[typ]; inst = inst + 1) 
 					begin : inst_loop
-        		assign BASE_ADDR[typ][inst] = typ > 0 ? (TYPE_SEQ[typ][inst] -1) * TYPE_REG_OFFSET[typ] + TYPE_OFFSET[typ -1]
+                always @(posedge S_AXI_ACLK) begin           
+        		    BASE_ADDR[typ][inst] <= typ > 0 ? (TYPE_SEQ[typ][inst] -1) * TYPE_REG_OFFSET[typ] + TYPE_OFFSET[typ -1]
 																					 : (TYPE_SEQ[typ][inst] -1) * TYPE_REG_OFFSET[typ];
 
-        		assign HIGH_ADDR[typ][inst] = typ > 0 ?  TYPE_SEQ[typ][inst] 		 * TYPE_REG_OFFSET[typ] + TYPE_OFFSET[typ -1]
+        		    HIGH_ADDR[typ][inst] <= typ > 0 ?  TYPE_SEQ[typ][inst] 		 * TYPE_REG_OFFSET[typ] + TYPE_OFFSET[typ -1]
 																					 :  TYPE_SEQ[typ][inst] 		 * TYPE_REG_OFFSET[typ];
-
-						assign axi_ram_en[typ][inst] = inst == 0 ? TYPE_SEQ[typ][inst] != 0 & (mem_rden && (mem_address_read >= BASE_ADDR[typ][inst]) && (mem_address_read < HIGH_ADDR[typ][inst]))||(mem_wren && (mem_address_write >= BASE_ADDR[typ][inst]) && (mem_address_write < HIGH_ADDR[typ][inst])):
+                    axi_ram_en[typ][inst] <= inst == 0 ? TYPE_SEQ[typ][inst] != 0 & (mem_rden && (mem_address_read >= BASE_ADDR[typ][inst]) && (mem_address_read < HIGH_ADDR[typ][inst]))||(mem_wren && (mem_address_write >= BASE_ADDR[typ][inst]) && (mem_address_write < HIGH_ADDR[typ][inst])):
                                            TYPE_SEQ[typ][inst] != TYPE_SEQ[typ][inst-1] ? (mem_rden && (mem_address_read >= BASE_ADDR[typ][inst]) && (mem_address_read < HIGH_ADDR[typ][inst]))||(mem_wren && (mem_address_write >= BASE_ADDR[typ][inst]) && (mem_address_write < HIGH_ADDR[typ][inst])) : 0;
-
-						assign axi_ram_we[typ][inst] = mem_wren && (mem_address_write >= BASE_ADDR[typ][inst]) && (mem_address_write < HIGH_ADDR[typ][inst]);
 						
-						assign axi_ram_addr[typ][inst] = mem_wren ? mem_address_write - BASE_ADDR[typ][inst]:
+                    axi_ram_we[typ][inst] <= mem_wren && (mem_address_write >= BASE_ADDR[typ][inst]) && (mem_address_write < HIGH_ADDR[typ][inst]);
+						
+                    axi_ram_addr[typ][inst] <= mem_wren ? mem_address_write - BASE_ADDR[typ][inst]:
 													mem_rden ? mem_address_read - BASE_ADDR[typ][inst] : 0;
-
+                end
 						dpram # (
 							.RAM_DEPTH(TYPE_REG_OFFSET[typ])
 						) dpram_i
@@ -6597,10 +6597,10 @@ end
     		for (p = 0; p < NUM_TYPE; p = p + 1) 
 					begin : rd_type_loop
         		for (k = 0; k < TYPE_NUM[p]; k = k + 1) 
-							begin : rd_inst_loop
-								if(axi_ram_en_d1[p][k])		axi_rdata <= dout2axi[p][k];
-              axi_ram_en_d1[p][k]		 <= axi_ram_en[p][k];
-							end
+                    begin : rd_inst_loop
+                        if(axi_ram_en_d1[p][k])		axi_rdata <= dout2axi[p][k];
+                            axi_ram_en_d1[p][k]		 <= axi_ram_en[p][k];
+                    end
 					end
       end
 
@@ -6610,10 +6610,11 @@ always @(posedge S_AXI_ACLK) begin
     state_read_d2 <= state_read_d1;
 end
 reg winc;
-reg mem_rden_d;
+reg mem_rden_d1, mem_rden_d2;
 reg [7:0] fifo_read_cntr;
-always @(posedge S_AXI_ACLK) mem_rden_d <= mem_rden;
-always @(posedge S_AXI_ACLK) winc <= mem_rden_d;
+always @(posedge S_AXI_ACLK) mem_rden_d1 <= mem_rden;
+always @(posedge S_AXI_ACLK) mem_rden_d2 <= mem_rden_d1;
+always @(posedge S_AXI_ACLK) winc <= mem_rden_d2;
 
 always @(*) axi_rvalid = S_AXI_RREADY & !rempty;
 
@@ -6666,6 +6667,7 @@ async_fifo  #(
 	bit_sum16  # (
 		.DATA_WIDTH(TYPE0_NUM)
 	) bit_sum_type0 (
+		.clk(S_AXI_ACLK),
 		.din(TYPE0_EN),
 		.bit_sum0(TYPE_SEQ[0][0]),
 		.bit_sum1(TYPE_SEQ[0][1]),
@@ -6688,6 +6690,7 @@ async_fifo  #(
 	bit_sum16  # (
 		.DATA_WIDTH(TYPE1_NUM)
 	) bit_sum_type1 (
+		.clk(S_AXI_ACLK),
 		.din(TYPE1_EN),
 		.bit_sum0(TYPE_SEQ[1][0]),
 		.bit_sum1(TYPE_SEQ[1][1]),
@@ -6710,6 +6713,7 @@ async_fifo  #(
 	bit_sum16  # (
 		.DATA_WIDTH(TYPE2_NUM)
 	) bit_sum_type2 (
+		.clk(S_AXI_ACLK),
 		.din(TYPE2_EN),
 		.bit_sum0(TYPE_SEQ[2][0]),
 		.bit_sum1(TYPE_SEQ[2][1]),
@@ -6732,6 +6736,7 @@ async_fifo  #(
 	bit_sum16  # (
 		.DATA_WIDTH(TYPE3_NUM)
 	) bit_sum_type3 (
+		.clk(S_AXI_ACLK),
 		.din(TYPE3_EN),
 		.bit_sum0(TYPE_SEQ[3][0]),
 		.bit_sum1(TYPE_SEQ[3][1]),
@@ -6754,6 +6759,7 @@ async_fifo  #(
 	bit_sum16  # (
 		.DATA_WIDTH(TYPE4_NUM)
 	) bit_sum_type4 (
+		.clk(S_AXI_ACLK),
 		.din(TYPE4_EN),
 		.bit_sum0(TYPE_SEQ[4][0]),
 		.bit_sum1(TYPE_SEQ[4][1]),
@@ -6776,6 +6782,7 @@ async_fifo  #(
 	bit_sum16  # (
 		.DATA_WIDTH(TYPE5_NUM)
 	) bit_sum_type5 (
+		.clk(S_AXI_ACLK),
 		.din(TYPE5_EN),
 		.bit_sum0(TYPE_SEQ[5][0]),
 		.bit_sum1(TYPE_SEQ[5][1]),
@@ -6798,6 +6805,7 @@ async_fifo  #(
 	bit_sum16  # (
 		.DATA_WIDTH(TYPE6_NUM)
 	) bit_sum_type6 (
+		.clk(S_AXI_ACLK),
 		.din(TYPE6_EN),
 		.bit_sum0(TYPE_SEQ[6][0]),
 		.bit_sum1(TYPE_SEQ[6][1]),
@@ -6820,6 +6828,7 @@ async_fifo  #(
 	bit_sum16  # (
 		.DATA_WIDTH(TYPE7_NUM)
 	) bit_sum_type7 (
+		.clk(S_AXI_ACLK),
 		.din(TYPE7_EN),
 		.bit_sum0(TYPE_SEQ[7][0]),
 		.bit_sum1(TYPE_SEQ[7][1]),
@@ -6842,6 +6851,7 @@ async_fifo  #(
 	bit_sum16  # (
 		.DATA_WIDTH(TYPE8_NUM)
 	) bit_sum_type8 (
+		.clk(S_AXI_ACLK),
 		.din(TYPE8_EN),
 		.bit_sum0(TYPE_SEQ[8][0]),
 		.bit_sum1(TYPE_SEQ[8][1]),
@@ -6864,6 +6874,7 @@ async_fifo  #(
 	bit_sum16  # (
 		.DATA_WIDTH(TYPE9_NUM)
 	) bit_sum_type9 (
+		.clk(S_AXI_ACLK),
 		.din(TYPE9_EN),
 		.bit_sum0(TYPE_SEQ[9][0]),
 		.bit_sum1(TYPE_SEQ[9][1]),
@@ -6886,6 +6897,7 @@ async_fifo  #(
 	bit_sum16  # (
 		.DATA_WIDTH(TYPE10_NUM)
 	) bit_sum_type10 (
+		.clk(S_AXI_ACLK),
 		.din(TYPE10_EN),
 		.bit_sum0(TYPE_SEQ[10][0]),
 		.bit_sum1(TYPE_SEQ[10][1]),
@@ -6908,6 +6920,7 @@ async_fifo  #(
 	bit_sum16  # (
 		.DATA_WIDTH(TYPE11_NUM)
 	) bit_sum_type11 (
+		.clk(S_AXI_ACLK),
 		.din(TYPE11_EN),
 		.bit_sum0(TYPE_SEQ[11][0]),
 		.bit_sum1(TYPE_SEQ[11][1]),
@@ -6930,6 +6943,7 @@ async_fifo  #(
 	bit_sum16  # (
 		.DATA_WIDTH(TYPE12_NUM)
 	) bit_sum_type12 (
+		.clk(S_AXI_ACLK),
 		.din(TYPE12_EN),
 		.bit_sum0(TYPE_SEQ[12][0]),
 		.bit_sum1(TYPE_SEQ[12][1]),
@@ -6952,6 +6966,7 @@ async_fifo  #(
 	bit_sum16  # (
 		.DATA_WIDTH(TYPE13_NUM)
 	) bit_sum_type13 (
+		.clk(S_AXI_ACLK),
 		.din(TYPE13_EN),
 		.bit_sum0(TYPE_SEQ[13][0]),
 		.bit_sum1(TYPE_SEQ[13][1]),
@@ -6974,6 +6989,7 @@ async_fifo  #(
 	bit_sum16  # (
 		.DATA_WIDTH(TYPE14_NUM)
 	) bit_sum_type14 (
+		.clk(S_AXI_ACLK),
 		.din(TYPE14_EN),
 		.bit_sum0(TYPE_SEQ[14][0]),
 		.bit_sum1(TYPE_SEQ[14][1]),
@@ -6996,6 +7012,7 @@ async_fifo  #(
 	bit_sum16  # (
 		.DATA_WIDTH(TYPE15_NUM)
 	) bit_sum_type15 (
+		.clk(S_AXI_ACLK),
 		.din(TYPE15_EN),
 		.bit_sum0(TYPE_SEQ[15][0]),
 		.bit_sum1(TYPE_SEQ[15][1]),

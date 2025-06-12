@@ -26,12 +26,14 @@ module dpram # (
     output wire [DATA_WIDTH-1:0] douta,       // Port A RAM output data
     output wire [DATA_WIDTH-1:0] doutb       // Port B RAM output data
 );
-  reg [DATA_WIDTH-1:0] memory [RAM_DEPTH-1:0];
+generate
+if(RAM_DEPTH <= 64) begin: lutram
+(*ram_style = "distributed" *)  reg [DATA_WIDTH-1:0] memory [RAM_DEPTH-1:0];
   reg [DATA_WIDTH-1:0] ram_data_a = {DATA_WIDTH{1'b0}};
   reg [DATA_WIDTH-1:0] ram_data_b = {DATA_WIDTH{1'b0}};
 
   // The following code either initializes the memory values to a specified file or to all zeros to match hardware
-  generate
+  
     if (INIT_FILE != "") begin: use_init_file
       initial
         $readmemh(INIT_FILE, memory, 0, RAM_DEPTH-1);
@@ -41,9 +43,12 @@ module dpram # (
         for (ram_index = 0; ram_index < RAM_DEPTH; ram_index = ram_index + 1)
           memory[ram_index] = {DATA_WIDTH{1'b0}};
     end
-  endgenerate
+  
 
-       always @(posedge clka)
+       always @(posedge clka or posedge rsta)
+        if(rsta)
+            ram_data_a <= 'b0;
+        else
          if (ena)
            if (wea) begin
              memory[addra] <= dina;
@@ -52,7 +57,10 @@ module dpram # (
              ram_data_a <= memory[addra];
            end
 
-       always @(posedge clkb)
+       always @(posedge clkb or posedge rstb)
+        if(rstb)
+            ram_data_b <= 'b0;
+        else
          if (enb)
            if (web) begin
              memory[addrb] <= dinb;
@@ -62,7 +70,7 @@ module dpram # (
            end
 
   //  The following code generates HIGH_PERFORMANCE (use output register) or LOW_LATENCY (no output register)
-  generate
+  
     if (RAM_PERFORMANCE == "LOW_LATENCY") begin: no_output_register
 
       // The following is a 1 clock cycle read latency at the cost of a longer clock-to-out timing
@@ -92,7 +100,80 @@ module dpram # (
       assign doutb = doutb_reg;
 
     end
-  endgenerate
+    end
+  
+  
+else begin: block_ram
+reg [DATA_WIDTH-1:0] memory [RAM_DEPTH-1:0];
+  reg [DATA_WIDTH-1:0] ram_data_a = {DATA_WIDTH{1'b0}};
+  reg [DATA_WIDTH-1:0] ram_data_b = {DATA_WIDTH{1'b0}};
+
+  // The following code either initializes the memory values to a specified file or to all zeros to match hardware
+  
+    if (INIT_FILE != "") begin: use_init_file
+      initial
+        $readmemh(INIT_FILE, memory, 0, RAM_DEPTH-1);
+    end else begin: init_bram_to_zero
+      integer ram_index;
+      initial
+        for (ram_index = 0; ram_index < RAM_DEPTH; ram_index = ram_index + 1)
+          memory[ram_index] = {DATA_WIDTH{1'b0}};
+    end
+  
+
+       always @(posedge clka)
+         if (ena)
+           if (wea) begin
+             memory[addra] <= dina;
+             ram_data_a <= dina;
+           end else begin
+             ram_data_a <= memory[addra];
+           end
+
+       always @(posedge clkb)
+         if (enb)
+           if (web) begin
+             memory[addrb] <= dinb;
+             ram_data_b <= dinb;
+           end else begin
+             ram_data_b <= memory[addrb];
+           end
+
+  //  The following code generates HIGH_PERFORMANCE (use output register) or LOW_LATENCY (no output register)
+  
+    if (RAM_PERFORMANCE == "LOW_LATENCY") begin: no_output_register
+
+      // The following is a 1 clock cycle read latency at the cost of a longer clock-to-out timing
+       assign douta = ram_data_a;
+       assign doutb = ram_data_b;
+
+    end else begin: output_register
+
+      // The following is a 2 clock cycle read latency with improve clock-to-out timing
+
+      reg [DATA_WIDTH-1:0] douta_reg = {DATA_WIDTH{1'b0}};
+      reg [DATA_WIDTH-1:0] doutb_reg = {DATA_WIDTH{1'b0}};
+
+      always @(posedge clka)
+        if (rsta)
+          douta_reg <= {DATA_WIDTH{1'b0}};
+        else 
+          douta_reg <= ram_data_a;
+
+      always @(posedge clkb)
+        if (rstb)
+          doutb_reg <= {DATA_WIDTH{1'b0}};
+        else 
+          doutb_reg <= ram_data_b;
+
+      assign douta = douta_reg;
+      assign doutb = doutb_reg;
+
+    end
+    end
+  
+endgenerate
+
 
   //  The following function calculates the address width based on specified RAM depth
 //   function integer clogb2;
